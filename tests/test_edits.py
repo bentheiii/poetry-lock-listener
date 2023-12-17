@@ -286,7 +286,8 @@ def test_ignore_qux(plugin, lockfile_path, sink_path, qux_ignore_version):
         },
     ]
 
-def test_stdout(plugin, lockfile_path, capsys):    
+
+def test_stdout(plugin, lockfile_path, capsys):
     plugin.config.package_changed_hook = "tests.dep_hook:loud"
 
     lockfile_path.write_text(LOCK_BEFORE)

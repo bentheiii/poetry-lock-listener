@@ -3,7 +3,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 from warnings import warn
-import subprocess
 
 import tomli
 from cleo.events.console_events import COMMAND, TERMINATE
@@ -119,4 +118,4 @@ class LockListenerPlugin(ApplicationPlugin):
             warn(f"Failed to run callback command: {e!r}")
             return
         if output:
-            print(output)
+            print(output)  # noqa: T201
