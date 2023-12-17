@@ -2,9 +2,9 @@ name: Test envolved
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   unittest:
@@ -30,4 +30,4 @@ jobs:
         poetry run sh scripts/lint.sh
     - name: Tests
       run: |
-        poetry run sh scripts/coverage.shvscode-remote://wsl%2Bubuntu-22.04/home/bena/work/envolved/.github/workflows/release.yml
+        poetry run sh scripts/coverage.sh
