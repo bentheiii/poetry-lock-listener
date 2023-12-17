@@ -285,3 +285,16 @@ def test_ignore_qux(plugin, lockfile_path, sink_path, qux_ignore_version):
             "after": [],
         },
     ]
+
+def test_stdout(plugin, lockfile_path, capsys):    
+    plugin.config.package_changed_hook = "tests.dep_hook:loud"
+
+    lockfile_path.write_text(LOCK_BEFORE)
+
+    plugin.pre_lock()
+
+    lockfile_path.write_text(LOCK_AFTER)
+
+    plugin.post_lock()
+
+    assert "!!!I HAVE BEEN CALLED WITH 3 ITEMS!!!\n" in capsys.readouterr().out

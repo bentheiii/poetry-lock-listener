@@ -3,6 +3,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 from warnings import warn
+import subprocess
 
 import tomli
 from cleo.events.console_events import COMMAND, TERMINATE
@@ -19,13 +20,16 @@ from poetry_lock_listener.lock_spec import LockSpec
 
 class LockListenerPlugin(ApplicationPlugin):
     locked_before: LockSpec | None = None
-    config: LockListenerConfig
+    config: LockListenerConfig | None
     poetry: Poetry
 
     def activate(self, application: Application) -> None:
-        self.config = self._get_config(application)
         self.poetry = application.poetry
+        self.config = self._get_config(application)
 
+        if self.config is None:
+            # the tool is not configured for this project
+            return
         event_dispatcher = application.event_dispatcher
         if event_dispatcher is None:
             warn("No event dispatcher found, lock listener will not work")
@@ -34,7 +38,7 @@ class LockListenerPlugin(ApplicationPlugin):
         event_dispatcher.add_listener(TERMINATE, self.on_terminate)
 
     @classmethod
-    def _get_config(cls, application: Application) -> LockListenerConfig:
+    def _get_config(cls, application: Application) -> LockListenerConfig | None:
         pyproject: Mapping[str, Any]
         try:
             pyproject = application.poetry.pyproject.data
@@ -42,13 +46,16 @@ class LockListenerPlugin(ApplicationPlugin):
             with Path("pyproject.toml").open("rb") as f:
                 pyproject = tomli.load(f)
 
-        raw = pyproject.get("tool", {}).get("poetry_lock_listener", {})
+        raw = pyproject.get("tool", {}).get("poetry_lock_listener", None)
+        if raw is None:
+            return None
         return LockListenerConfig.from_raw(raw)
 
     def on_command(self, event: Event, event_name: str, dispatcher: EventDispatcher) -> None:
         self.pre_lock()
 
     def pre_lock(self) -> None:
+        assert self.config is not None
         # we need to get the lockfile path before the lock command is executed
         # because the lock command will update the lock file
         try:
@@ -70,6 +77,7 @@ class LockListenerPlugin(ApplicationPlugin):
         self.post_lock()
 
     def post_lock(self) -> None:
+        assert self.config is not None
         if self.locked_before is None:
             # this means the lockfile didn't exist before the lock command was run
             return
@@ -106,7 +114,9 @@ class LockListenerPlugin(ApplicationPlugin):
             warn("No callback command was configured")
             return
         try:
-            env.run(*cb_command)
+            output = env.run(*cb_command)
         except Exception as e:
             warn(f"Failed to run callback command: {e!r}")
             return
+        if output:
+            print(output)

@@ -9,6 +9,8 @@ def main(inp):
     with open(sink_path, "w") as f:
         f.write(json.dumps(inp))
 
+def loud(inp):
+    print(f"!!!I HAVE BEEN CALLED WITH {len(inp)} ITEMS!!!")
 
 if __name__ == "__main__":
     import sys
