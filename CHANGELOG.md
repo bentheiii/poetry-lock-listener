@@ -1,4 +1,13 @@
 # Poetry-Lock-Listener Changelog
+## 0.2.0
+### Changed
+* callback hooks now also accept a `context` parameter, it's empty for now but we're future proofing
+### Added
+* added a verbosity flag to the plugin, controlled by the `POETRY_LOCK_LISTENER_VERBOSITY` environment variable
+### Fixed
+* on_changed hooks now handle `input` correctly
+* content-hash is now ignored on lockfiles
+
 ## 0.1.1
 ### Added
 * setup instructions in the readme

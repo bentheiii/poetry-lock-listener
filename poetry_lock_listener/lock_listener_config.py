@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -22,6 +23,7 @@ class LockListenerConfig:
     lock_file_path: str | None
     package_changed_hook: str | None
     ignore_packages: list[PackageIgnoreSpec]
+    hook_context: Any
 
     @classmethod
     def from_raw(cls, raw: dict[str, Any]) -> "LockListenerConfig":
@@ -29,9 +31,12 @@ class LockListenerConfig:
             lock_file_path=raw.get("lockfile", None),
             package_changed_hook=raw.get("package_changed_hook", None),
             ignore_packages=[PackageIgnoreSpec.from_raw(raw_ignore) for raw_ignore in raw.get("ignore_packages", ())],
+            hook_context=raw.get("hook_context", {}),
         )
 
-    def get_callback_command(self, encoded_input: str) -> list[str] | None:
+    def get_callback_command(self, diff: Any) -> list[str] | None:
+        encoded_input = json.dumps(diff)
+        encoded_context = json.dumps(self.hook_context)
         if self.package_changed_hook is None:
             return None
         file, _, func = self.package_changed_hook.partition(":")
@@ -40,8 +45,9 @@ class LockListenerConfig:
             ret.extend(
                 [
                     "-c",
-                    f"from {file} import {func}; import json; import sys; {func}(json.loads(sys.argv[1]))",
+                    f"from {file} import {func}; import json; import sys; {func}(json.loads(sys.argv[1]), json.loads(sys.argv[2]))",
                     encoded_input,
+                    encoded_context,
                 ]
             )
         else:

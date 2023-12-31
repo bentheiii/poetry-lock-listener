@@ -5,7 +5,7 @@ from poetry.console.application import Application as PoetryApplication
 from pytest import fixture, mark, skip
 
 from poetry_lock_listener.lock_listener_config import LockListenerConfig, PackageIgnoreSpec
-from poetry_lock_listener.plugin import LockListenerPlugin
+from poetry_lock_listener.plugin import LockListenerPlugin, Verbosity
 
 
 @fixture()
@@ -23,10 +23,12 @@ def sink_path(tmp_path):
 @fixture()
 def plugin(lockfile_path):
     plugin = LockListenerPlugin()
+    plugin.verbosity = Verbosity.DEBUG
     plugin.config = LockListenerConfig(
         lock_file_path=str(lockfile_path),
         package_changed_hook="tests.dep_hook:main",
         ignore_packages=[],
+        hook_context={},
     )
     app = PoetryApplication()
     app.auto_exits = False
@@ -137,13 +139,12 @@ def test_no_lock(plugin, lockfile_path, sink_path, lock_before, lock_after):
     assert not sink_path.exists()
 
 
-@mark.parametrize("content_hash", [False, True])
-def test_no_changes(plugin, lockfile_path, sink_path, content_hash):
-    lockfile_path.write_text(LOCK_BEFORE + ('content-hash = "abc123"' if content_hash else ""))
+def test_no_changes(plugin, lockfile_path, sink_path):
+    lockfile_path.write_text(LOCK_BEFORE)
 
     plugin.pre_lock()
 
-    lockfile_path.write_text(LOCK_BEFORE + ('content-hash = "abc123"' if content_hash else ""))
+    lockfile_path.write_text(LOCK_BEFORE)
 
     plugin.post_lock()
 
@@ -287,7 +288,7 @@ def test_ignore_qux(plugin, lockfile_path, sink_path, qux_ignore_version):
     ]
 
 
-def test_stdout(plugin, lockfile_path, capsys):
+def test_stdout(plugin, lockfile_path, capfd):
     plugin.config.package_changed_hook = "tests.dep_hook:loud"
 
     lockfile_path.write_text(LOCK_BEFORE)
@@ -298,4 +299,33 @@ def test_stdout(plugin, lockfile_path, capsys):
 
     plugin.post_lock()
 
-    assert "!!!I HAVE BEEN CALLED WITH 3 ITEMS!!!\n" in capsys.readouterr().out
+    assert "!!!I HAVE BEEN CALLED WITH 3 ITEMS!!!\n" in capfd.readouterr().out
+
+
+def test_hook_err(plugin, lockfile_path, capfd):
+    plugin.config.package_changed_hook = "tests.dep_hook:panic"
+
+    lockfile_path.write_text(LOCK_BEFORE)
+
+    plugin.pre_lock()
+
+    lockfile_path.write_text(LOCK_AFTER)
+
+    plugin.post_lock()
+
+    assert "yanky ho!\n" in capfd.readouterr().out
+
+
+@mark.requires_input
+def test_stdin(plugin, lockfile_path, capfd, sink_path):
+    plugin.config.package_changed_hook = "tests.dep_hook:listen"
+
+    lockfile_path.write_text(LOCK_BEFORE)
+
+    plugin.pre_lock()
+
+    lockfile_path.write_text(LOCK_AFTER)
+
+    plugin.post_lock()
+    assert "enter the value to multiply by number of items: " in capfd.readouterr().out
+    assert json.loads(sink_path.read_text()) == 12
