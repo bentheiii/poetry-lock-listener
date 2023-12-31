@@ -8,7 +8,6 @@ def test_parse(version):
     raw = {
         "metadata": {
             "lock-version": version,
-            "content-hash": "abc123",
         },
         "package": [
             {
@@ -35,7 +34,6 @@ def test_parse(version):
 
     spec = LockSpec.from_raw(raw)
     assert spec == LockSpec(
-        content_hash="abc123",
         packages={
             "foo": ["1.0.0", "1.0.1"],
             "bar": ["1.0.0"],

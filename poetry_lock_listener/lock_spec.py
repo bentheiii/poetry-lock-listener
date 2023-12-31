@@ -10,9 +10,6 @@ from poetry_lock_listener.lock_listener_config import PackageIgnoreSpec
 
 @dataclass
 class LockSpec:
-    content_hash: str | None = None  # the content hash of the lockfile, will be None if the
-    # lockfile is missing
-
     # mapping a package name to a sorted list of versions described in its lockfile, in some cases,
     # there may be more than one version listed for a package depending on the system and python
     # version. Since this not normally expected (especially since this plugin is designed for services)
@@ -34,7 +31,6 @@ class LockSpec:
 
     @classmethod
     def from_raw_v2(cls, raw: dict[str, Any]) -> LockSpec:
-        content_hash = raw.get("metadata", {}).get("content-hash")
         packages: dict[str, list[str]] = {}
         for package in raw.get("package", ()):
             name = package.get("name")
@@ -44,7 +40,7 @@ class LockSpec:
             packages.setdefault(name, []).append(version)
         for v in packages.values():
             v.sort()
-        return cls(content_hash, packages)
+        return cls(packages)
 
     def apply_ignores(self, ignores: list[PackageIgnoreSpec]) -> None:
         for ignore in ignores:
