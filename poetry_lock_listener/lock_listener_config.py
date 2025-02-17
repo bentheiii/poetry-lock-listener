@@ -28,8 +28,8 @@ class LockListenerConfig:
     @classmethod
     def from_raw(cls, raw: dict[str, Any]) -> "LockListenerConfig":
         return cls(
-            lock_file_path=raw.get("lockfile", None),
-            package_changed_hook=raw.get("package_changed_hook", None),
+            lock_file_path=raw.get("lockfile"),
+            package_changed_hook=raw.get("package_changed_hook"),
             ignore_packages=[PackageIgnoreSpec.from_raw(raw_ignore) for raw_ignore in raw.get("ignore_packages", ())],
             hook_context=raw.get("hook_context", {}),
         )
