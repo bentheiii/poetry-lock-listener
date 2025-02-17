@@ -38,16 +38,3 @@ jobs:
         PYPI_PASSWORD: ${{ secrets.pypi_password }}
       run: |
         poetry publish -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD" --build
-    - name: Upload Binaries as Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: binaries
-        path: dist
-    - name: Upload Binaries to Release
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: dist/*
-        tag: ${{ github.ref }}
-        overwrite: true
-        file_glob: true
