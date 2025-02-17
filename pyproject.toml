@@ -5,7 +5,7 @@ description = ""
 readme = "README.md"
 authors = [{name = "Ben Avrahami", email = "example@gmail.com"}]
 dynamic = ["dependencies"]
-requires-python = ">=3.10"
+requires-python = ">=3.10,<4.0"
 
 [tool.poetry.dependencies]
 poetry = ">=2.1.1"
