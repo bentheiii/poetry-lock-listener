@@ -1,4 +1,7 @@
 # Poetry-Lock-Listener Changelog
+## 0.2.1
+### Fixed
+* project now supports poetry 2.*
 ## 0.2.0
 ### Changed
 * callback hooks now also accept a `context` parameter, it's empty for now but we're future proofing

@@ -8,19 +8,19 @@ from poetry_lock_listener.lock_listener_config import LockListenerConfig, Packag
 from poetry_lock_listener.plugin import LockListenerPlugin, Verbosity
 
 
-@fixture()
+@fixture
 def lockfile_path(tmp_path):
     return tmp_path / "poetry.lock"
 
 
-@fixture()
+@fixture
 def sink_path(tmp_path):
     ret = tmp_path / "sink"
     environ["SINK_PATH"] = str(ret)
     return ret
 
 
-@fixture()
+@fixture
 def plugin(lockfile_path):
     plugin = LockListenerPlugin()
     plugin.verbosity = Verbosity.DEBUG

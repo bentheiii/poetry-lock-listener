@@ -1,25 +1,26 @@
-[tool.poetry]
+[project]
 name = "poetry-lock-listener"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
-authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+authors = [{name = "Ben Avrahami", email = "example@gmail.com"}]
+dynamic = ["dependencies"]
+requires-python = ">=3.10,<4.0"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-poetry = "^1.7.1"
+poetry = ">=1.0.0"
 cleo = "^2.1.0"
 tomli = "^2.0.1"
 
-[tool.poetry.plugins."poetry.application.plugin"]
+[project.entry-points."poetry.plugin"]
 lock_listener = "poetry_lock_listener.plugin:LockListenerPlugin"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.8"
+ruff = ">=0.1.8"
 coverage = "^7.3.3"
 pytest = "^7.4.3"
-mypy = "^1.7.1"
+mypy = ">=1.7.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,6 +29,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 target-version = "py310"
+line-length = 120
+output-format = "full"
+[tool.ruff.lint]
 # https://beta.ruff.rs/docs/rules/
 select = ["I", "E", "W", "F", "N", "S", "BLE", "COM", "C4", "ISC", "ICN", "G", "PIE", "T20", "PYI", "Q", "SLF", "SIM",
           "ERA", "PGH", "PLC", "PLE", "PLR", "PLW", "RUF", "PT", "UP", "B", "ANN", "ASYNC", "FBT003", "A", "INP",
@@ -50,27 +54,23 @@ ignore = [
     "SIM118",  # Use `key in {}` instead of `key in {}.keys()`
     "SIM112",  # Use capitalized environment variable
     "S311", # use of non-cryptographic random
-    "ANN101",  # Missing type annotation for self in method
-    "ANN102",  # Missing type annotation for cls in classmethod
     "ANN401",  # Dynamic type annotation
     "A003",  # class attribute shadows built-in
     "PERF203",  # `try`-`except` within a loop incurs performance overhead
     "B028",  # no explicit stacklevel on warn
     "BLE001",  # Do not catch blind exception: `Exception`
 ]
-line-length = 120
-show-source = true
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports=true
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 suppress-none-returning = true
 
-[tool.ruff.flake8-pytest-style]
+[tool.ruff.lint.flake8-pytest-style]
 raises-require-match-for = []
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**" = [
     "ANN",  # annotations
     "N802", # Function name should be lowercase

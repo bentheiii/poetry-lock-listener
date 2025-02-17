@@ -38,7 +38,15 @@ class LockListenerPlugin(ApplicationPlugin):
         if self.verbosity > verbosity:
             print("Poetry Lock Listener: ", *args, **kwargs)  # noqa: T201
 
-    def activate(self, application: Application) -> None:
+    def activate(self, *args: Any) -> None:
+        if len(args) == 1:
+            # poetry v1
+            application: Application = args[0]
+            self.poetry = application.poetry
+        elif len(args) == 2:
+            # poetry v2
+            poetry, _io = args
+            self.poetry = poetry
         self.verbosity = Verbosity.NORMAL
         raw_verbosity = getenv("POETRY_LOCK_LISTENER_VERBOSITY")
         if raw_verbosity is not None:
@@ -47,8 +55,7 @@ class LockListenerPlugin(ApplicationPlugin):
             except ValueError:
                 self.print(Verbosity.SILENT, f"Invalid verbosity level: {raw_verbosity!r}")
         self.print(Verbosity.VERBOSE, f"Verbosity level {self.verbosity}, version {__version__}")
-        self.poetry = application.poetry
-        self.config = self._get_config(application)
+        self.config = self._get_config(self.poetry)
 
         if self.config is None:
             # the tool is not configured for this project
@@ -61,10 +68,10 @@ class LockListenerPlugin(ApplicationPlugin):
         event_dispatcher.add_listener(COMMAND, self.on_command)
         event_dispatcher.add_listener(TERMINATE, self.on_terminate)
 
-    def _get_config(self, application: Application) -> LockListenerConfig | None:
+    def _get_config(self, poetry: Poetry) -> LockListenerConfig | None:
         pyproject: Mapping[str, Any]
         try:
-            pyproject = application.poetry.pyproject.data
+            pyproject = poetry.pyproject.data
         except Exception:
             with Path("pyproject.toml").open("rb") as f:
                 pyproject = tomli.load(f)
