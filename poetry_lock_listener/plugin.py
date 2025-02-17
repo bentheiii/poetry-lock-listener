@@ -6,7 +6,6 @@ from sys import stdin, stdout
 from typing import Any
 
 import tomli
-from cleo.io.io import IO
 from cleo.events.console_events import COMMAND, TERMINATE
 from cleo.events.event import Event
 from cleo.events.event_dispatcher import EventDispatcher
@@ -39,7 +38,7 @@ class LockListenerPlugin(ApplicationPlugin):
         if self.verbosity > verbosity:
             print("Poetry Lock Listener: ", *args, **kwargs)  # noqa: T201
 
-    def activate(self, *args) -> None:
+    def activate(self, *args: Any) -> None:
         if len(args) == 1:
             # poetry v1
             application: Application = args[0]
