@@ -1,5 +1,5 @@
 # Poetry-Lock-Listener Changelog
-## 0.2.1
+## 0.2.2
 ### Fixed
 * project now supports poetry 2.*
 ## 0.2.0
