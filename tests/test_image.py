@@ -30,12 +30,12 @@ def test_update(docker_client, image):
         cntr.start()
         assert cntr.wait()["StatusCode"] == 0
         logs = cntr.logs().decode()
-        _, sep, rest = logs.partition("!!! PACKAGES CHANGED !!!")
-        assert sep is not None, logs
-        args = json.loads(rest)
-        _exec, raw_change, raw_context = args
-        changes = json.loads(raw_change)
-        context = json.loads(raw_context)
-        (change,) = changes
-        assert change["package"] == "types-retry"
-        assert context == {}
+    _, sep, rest = logs.partition("!!! PACKAGES CHANGED !!!")
+    assert sep is not None, logs
+    args = json.loads(rest)
+    __, raw_change, raw_context = args
+    changes = json.loads(raw_change)
+    context = json.loads(raw_context)
+    (change,) = changes
+    assert change["package"] == "types-retry"
+    assert context == {}
