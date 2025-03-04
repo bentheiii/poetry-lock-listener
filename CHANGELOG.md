@@ -1,4 +1,11 @@
 # Poetry-Lock-Listener Changelog
+## 0.2.3
+### Added
+* the context is now sent to file-style callbacks, same as python hooks
+### Fixed
+* fixed issues with poetry 2 compatibility
+### Internal
+* added component tests using docker
 ## 0.2.2
 ### Fixed
 * project now supports poetry 2.*

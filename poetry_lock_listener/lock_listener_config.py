@@ -51,5 +51,5 @@ class LockListenerConfig:
                 ]
             )
         else:
-            ret.extend([file, encoded_input])
+            ret.extend([file, encoded_input, encoded_context])
         return ret

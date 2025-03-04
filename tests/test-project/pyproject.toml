@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "my-test-project"
+version = "0.0.1"
+description = ""
+authors = ["Doctor Who"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+# smallest packages I could find
+types-retry="0.1.*"
+types-decorator="0.1.*"
+
+[tool.poetry_lock_listener]
+package_changed_hook="/app/on_package_changed.py"
