@@ -1,18 +1,17 @@
-[project]
+[tool.poetry]
 name = "poetry-lock-listener"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-authors = [{name = "Ben Avrahami", email = "example@gmail.com"}]
-dynamic = ["dependencies"]
-requires-python = ">=3.10,<4.0"
 
 [tool.poetry.dependencies]
-poetry = ">=1.0.0"
+python = "^3.10"
+poetry = ">=1.7.1"
 cleo = "^2.1.0"
 tomli = "^2.0.1"
 
-[project.entry-points."poetry.plugin"]
+[tool.poetry.plugins."poetry.application.plugin"]
 lock_listener = "poetry_lock_listener.plugin:LockListenerPlugin"
 
 
@@ -21,6 +20,8 @@ ruff = ">=0.1.8"
 coverage = "^7.3.3"
 pytest = "^7.4.3"
 mypy = ">=1.7.1"
+docker = "^7.1.0"
+yellowbox = "^0.8.8"
 
 [build-system]
 requires = ["poetry-core"]

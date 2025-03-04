@@ -38,15 +38,8 @@ class LockListenerPlugin(ApplicationPlugin):
         if self.verbosity > verbosity:
             print("Poetry Lock Listener: ", *args, **kwargs)  # noqa: T201
 
-    def activate(self, *args: Any) -> None:
-        if len(args) == 1:
-            # poetry v1
-            application: Application = args[0]
-            self.poetry = application.poetry
-        elif len(args) == 2:
-            # poetry v2
-            poetry, _io = args
-            self.poetry = poetry
+    def activate(self, application: Application) -> None:
+        self.poetry = application.poetry
         self.verbosity = Verbosity.NORMAL
         raw_verbosity = getenv("POETRY_LOCK_LISTENER_VERBOSITY")
         if raw_verbosity is not None:
