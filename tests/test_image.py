@@ -39,3 +39,10 @@ def test_update(docker_client, image):
     (change,) = changes
     assert change["package"] == "types-retry"
     assert context == {}
+
+
+def test_do_nothing(docker_client, image):
+    cntr = create_and_pull(docker_client, image, "poetry --version", working_dir="/")
+    with removing(cntr):
+        cntr.start()
+        assert cntr.wait()["StatusCode"] == 0

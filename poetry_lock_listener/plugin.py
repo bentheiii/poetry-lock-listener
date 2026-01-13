@@ -39,13 +39,13 @@ class LockListenerPlugin(ApplicationPlugin):
             print("Poetry Lock Listener: ", *args, **kwargs)  # noqa: T201
 
     def activate(self, application: Application) -> None:
+        self.verbosity = Verbosity.NORMAL
+        raw_verbosity = getenv("POETRY_LOCK_LISTENER_VERBOSITY")
         try:
             self.poetry = application.poetry
         except Exception as e:
-            self.print(Verbosity.NORMAL, f"Failed to get poetry instance: {e!r}, lock listener disabled")
+            self.print(Verbosity.VERBOSE, f"Failed to get poetry instance: {e!r}, lock listener disabled")
             return
-        self.verbosity = Verbosity.NORMAL
-        raw_verbosity = getenv("POETRY_LOCK_LISTENER_VERBOSITY")
         if raw_verbosity is not None:
             try:
                 self.verbosity = Verbosity(int(raw_verbosity))
