@@ -35,7 +35,7 @@ class LockListenerPlugin(ApplicationPlugin):
     verbosity: Verbosity
 
     def print(self, verbosity: Verbosity, *args: Any, **kwargs: Any) -> None:
-        if self.verbosity > verbosity:
+        if self.verbosity >= verbosity:
             print("Poetry Lock Listener: ", *args, **kwargs)  # noqa: T201
 
     def activate(self, application: Application) -> None:
@@ -49,7 +49,7 @@ class LockListenerPlugin(ApplicationPlugin):
         try:
             self.poetry = application.poetry
         except Exception as e:
-            self.print(Verbosity.VERBOSE, f"Failed to get poetry instance: {e!r}, lock listener disabled")
+            self.print(Verbosity.VERBOSE, f"Failed to get poetry instance: {e!r}, plugin disabled")
             return
         self.print(Verbosity.VERBOSE, f"Verbosity level {self.verbosity}, version {__version__}")
         self.config = self._get_config(self.poetry)
@@ -60,7 +60,7 @@ class LockListenerPlugin(ApplicationPlugin):
             return
         event_dispatcher = application.event_dispatcher
         if event_dispatcher is None:
-            self.print(Verbosity.NORMAL, "No event dispatcher found, lock listener will not work")
+            self.print(Verbosity.NORMAL, "No event dispatcher found, plugin disabled")
             return
         event_dispatcher.add_listener(COMMAND, self.on_command)
         event_dispatcher.add_listener(TERMINATE, self.on_terminate)
