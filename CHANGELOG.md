@@ -1,4 +1,8 @@
 # Poetry-Lock-Listener Changelog
+## 0.2.4
+### Fixed
+* if poetry instance cannot be retrieved, the plugin will now disable itself instead of crashing
+* verbosity levels are now inclusive
 ## 0.2.3
 ### Added
 * the context is now sent to file-style callbacks, same as python hooks
