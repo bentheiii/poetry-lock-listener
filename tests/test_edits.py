@@ -4,7 +4,7 @@ from os import environ
 from poetry.console.application import Application as PoetryApplication
 from pytest import fixture, mark, skip
 
-from poetry_lock_listener.lock_listener_config import LockListenerConfig, PackageIgnoreSpec
+from poetry_lock_listener.lock_listener_config import LockListenerConfig, PackageIgnoreSpec, get_hook
 from poetry_lock_listener.plugin import LockListenerPlugin, Verbosity
 
 
@@ -26,7 +26,7 @@ def plugin(lockfile_path):
     plugin.verbosity = Verbosity.DEBUG
     plugin.config = LockListenerConfig(
         lock_file_path=str(lockfile_path),
-        package_changed_hook="tests.dep_hook:main",
+        package_changed_hook=get_hook("tests.dep_hook:main"),
         ignore_packages=[],
         hook_context={},
     )
@@ -75,7 +75,7 @@ LOCK_AFTER = """
 @mark.parametrize("content_hash", [False, True])
 def test_simple_flow(plugin, lockfile_path, sink_path, run_main, content_hash):
     if run_main:
-        plugin.config.package_changed_hook = "tests/dep_hook.py"
+        plugin.config.package_changed_hook = get_hook("tests/dep_hook.py")
 
     lockfile_path.write_text(LOCK_BEFORE + ('content-hash = "abc123"' if content_hash else ""))
 
@@ -289,7 +289,7 @@ def test_ignore_qux(plugin, lockfile_path, sink_path, qux_ignore_version):
 
 
 def test_stdout(plugin, lockfile_path, capfd):
-    plugin.config.package_changed_hook = "tests.dep_hook:loud"
+    plugin.config.package_changed_hook = get_hook("tests.dep_hook:loud")
 
     lockfile_path.write_text(LOCK_BEFORE)
 
@@ -303,7 +303,7 @@ def test_stdout(plugin, lockfile_path, capfd):
 
 
 def test_hook_err(plugin, lockfile_path, capfd):
-    plugin.config.package_changed_hook = "tests.dep_hook:panic"
+    plugin.config.package_changed_hook = get_hook("tests.dep_hook:panic")
 
     lockfile_path.write_text(LOCK_BEFORE)
 
@@ -318,7 +318,7 @@ def test_hook_err(plugin, lockfile_path, capfd):
 
 @mark.requires_input
 def test_stdin(plugin, lockfile_path, capfd, sink_path):
-    plugin.config.package_changed_hook = "tests.dep_hook:listen"
+    plugin.config.package_changed_hook = get_hook("tests.dep_hook:listen")
 
     lockfile_path.write_text(LOCK_BEFORE)
 
@@ -329,3 +329,39 @@ def test_stdin(plugin, lockfile_path, capfd, sink_path):
     plugin.post_lock()
     assert "enter the value to multiply by number of items: " in capfd.readouterr().out
     assert json.loads(sink_path.read_text()) == 12
+
+
+def test_hook_exec(plugin, lockfile_path, capfd):
+    plugin.config.package_changed_hook = get_hook({"exec": "echo hello"})
+
+    lockfile_path.write_text(LOCK_BEFORE)
+
+    plugin.pre_lock()
+
+    lockfile_path.write_text(LOCK_AFTER)
+
+    plugin.post_lock()
+    assert (
+        f"hello {
+            json.dumps(
+                [
+                    {
+                        'package': 'bar',
+                        'before': ['1.0.0'],
+                        'after': ['2.0.0'],
+                    },
+                    {
+                        'package': 'foo',
+                        'before': ['1.0.0'],
+                        'after': [],
+                    },
+                    {
+                        'package': 'qux',
+                        'before': [],
+                        'after': ['1.0.0'],
+                    },
+                ]
+            )
+        } {json.dumps({})}"
+        in capfd.readouterr().out
+    )

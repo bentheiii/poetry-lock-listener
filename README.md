@@ -11,3 +11,9 @@ in the toml file:
 [tool.poetry_lock_listener]
 package_changed_hook="path.to.file:main"
 ```
+
+or:
+```toml
+[tool.poetry_lock_listener]
+package_changed_hook={exec="my-command --my-flag"}
+```
