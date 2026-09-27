@@ -341,27 +341,24 @@ def test_hook_exec(plugin, lockfile_path, capfd):
     lockfile_path.write_text(LOCK_AFTER)
 
     plugin.post_lock()
-    assert (
-        f"hello {
-            json.dumps(
-                [
-                    {
-                        'package': 'bar',
-                        'before': ['1.0.0'],
-                        'after': ['2.0.0'],
-                    },
-                    {
-                        'package': 'foo',
-                        'before': ['1.0.0'],
-                        'after': [],
-                    },
-                    {
-                        'package': 'qux',
-                        'before': [],
-                        'after': ['1.0.0'],
-                    },
-                ]
-            )
-        } {json.dumps({})}"
-        in capfd.readouterr().out
+    arg0 = json.dumps(
+        [
+            {
+                "package": "bar",
+                "before": ["1.0.0"],
+                "after": ["2.0.0"],
+            },
+            {
+                "package": "foo",
+                "before": ["1.0.0"],
+                "after": [],
+            },
+            {
+                "package": "qux",
+                "before": [],
+                "after": ["1.0.0"],
+            },
+        ]
     )
+    arg1 = json.dumps({})
+    assert f"hello {arg0} {arg1}" in capfd.readouterr().out
