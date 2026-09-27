@@ -1,4 +1,10 @@
 # Poetry-Lock-Listener Changelog
+## 0.2.5
+### Added
+* added support for exec-style hooks
+* added support for python 3.13, 3.14, 3.15
+### Removed
+* removed support for python 3.10
 ## 0.2.4
 ### Fixed
 * if poetry instance cannot be retrieved, the plugin will now disable itself instead of crashing
